@@ -5,6 +5,10 @@ from world import World
 import random
 from ast import literal_eval
 
+
+from util import Stack 
+from util import Queue
+
 # Load world
 world = World()
 
@@ -27,7 +31,55 @@ player = Player(world.starting_room)
 
 # Fill this out with directions to walk
 # traversal_path = ['n', 'n']
-traversal_path = []
+traversal_path = [] # once you make the function that spits out traversal_path - test on line 52 should be done 
+
+# ADDING REVERSE 
+# reversed_traversal_path = []
+
+
+
+opposite_direction = {"n":"s", "s":"n", "e":"w", "w":"e"}
+
+
+
+def find_exits(current_room, visited):
+    valid_exits = []
+    for exit in current_room.get_exits():
+        if exit in room_graph[current_room.id][1]:
+            if room_graph[current_room.id][1][exit] not in visited:
+                valid_exits.append(exit)
+    return valid_exits
+
+
+
+def traverse_maze():
+    visited = set()
+    visited.add(player.current_room.id)
+    reversed_traversal_path = [] 
+
+    while len(visited) < len(room_graph.keys()):
+        current_room = player.current_room.id
+        valid_exits = find_exits(player.current_room, visited)
+        print(valid_exits)
+
+        if len(valid_exits) > 0:
+            for direction in valid_exits:
+                visited.add(room_graph[current_room][1][direction])
+                traversal_path.append(direction)
+                reversed_traversal_path.append(opposite_direction[direction])
+                player.travel(direction)
+
+                break
+        else: 
+            print(reversed_traversal_path)
+            direction = reversed_traversal_path.pop()
+            player.travel(direction)
+            traversal_path.append(direction)
+traverse_maze()
+
+
+
+
 
 
 
@@ -35,6 +87,9 @@ traversal_path = []
 visited_rooms = set()
 player.current_room = world.starting_room
 visited_rooms.add(player.current_room)
+
+
+
 
 for move in traversal_path:
     player.travel(move)
